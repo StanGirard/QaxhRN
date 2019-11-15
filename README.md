@@ -25,4 +25,5 @@ Make sure that you either have an emulator running on your computer or that your
 ```Bash
 react-native run-ios #for ios
 react-native run-android #for android
+```
 
