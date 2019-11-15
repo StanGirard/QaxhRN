@@ -16,7 +16,7 @@ npm start
 Then if you are on mac
 ```Bash
 cd ios/ && pod install && cd ..
-````
+```
 
 ## Running the application
 

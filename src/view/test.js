@@ -79,6 +79,8 @@ class Test extends Component {
         });
     });
       /*
+      MANDATORY VERIFICATIONS TODO BEFORE GOING ON
+      TODO
       Functions to get all the information about the user in its vault.
 
       const age = Contract.methods.getAgeOfMajority().call().catch(function(error){ console.log(error)})
