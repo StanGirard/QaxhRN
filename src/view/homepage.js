@@ -15,7 +15,7 @@ class HomePage extends Component {
         return (
             <View>
             <Button
-            title="Connexion"
+            title="Redo France Connect"
             onPress={() => this.props.navigation.navigate('Connexion') }/>
             <Button
             title="Use Old Safe"

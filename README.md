@@ -10,7 +10,7 @@ Go to the Root folder and type
 ```Bash
 yarn
 ## or 
-npm start
+npm install
 ```
 
 Then if you are on mac
