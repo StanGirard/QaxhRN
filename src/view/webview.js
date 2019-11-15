@@ -15,16 +15,24 @@ console.disableYellowBox = true;
 
 class MyWebComponent extends Component {
     static navigationOptions = {
-        title: 'Welcome',
+        title: 'France Connect Connexion',
       };
-    state = {url: "0x09673Aee968e7d2499Ad6aabb5FAbC055F1eCd21" }
+      constructor(props){
+        super(props);
+        this.state = {
+            url: '',
+            privateKey: '',
+            publicKey: ''
+        }
+    }
+      
     _onNavigationStateChange(webViewState){
         // If the url of the webviewstate changes to that then we move to the profile View
         if (webViewState.url.includes("http://companiontest2.qaxh.io/identification/france_connect?")) {
             this.props.navigation.navigate('Profile', {
             url: webViewState.url,
             privateKey: this.state.privateKey,
-            publicKey: this.state.address,
+            publicKey: this.state.publicKey,
             }
             )
         }
@@ -34,16 +42,18 @@ class MyWebComponent extends Component {
         
       }
 
-    componentWillMount() {
+    async componentDidMount() {
         //Generates a private & public key for the user
-    const address = web3.eth.accounts.create();
-    console.log("privateKey: " + address.privateKey);
-    console.log("address: " + address.address);
+    const address = await web3.eth.accounts.create();
+   
     this.setState({
         url: "http://companiontest2.qaxh.io/identification/id?public_key=" + address.address,
         privateKey: address.privateKey,
         publicKey: address.address
     })
+    console.log(this.state.url);
+    console.log(this.state.publicKey);
+    console.log(this.state.privateKey)
     }
     
     render() {
@@ -52,7 +62,7 @@ class MyWebComponent extends Component {
        <View style={styles.container} >
         <WebView
        ref="webview"
-       source={{uri:this.state.url}}
+       source={{url:this.state.url}}
        onNavigationStateChange={this._onNavigationStateChange.bind(this)}
        javaScriptEnabled = {true}
        domStorageEnabled = {true}

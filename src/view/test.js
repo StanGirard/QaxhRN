@@ -6,11 +6,12 @@ import '../../global'
 import '../../shim.js'
 import abi from '../abi/abi.json';
 import ModulesManager from '../abi/ModulesManager.json'
+import QaxhModule from '../abi/QaxhModule.json'
 
 //Test class to run call to Smart Contract via infura
 class Test extends Component {
     static navigationOptions = {
-      title: 'Test',
+      title: 'Accept Identity',
     };
     constructor(props){
       super(props);
@@ -19,8 +20,17 @@ class Test extends Component {
       }
     }
     
-    componentDidMount() {
+    async componentDidMount() {
       // Creates connection to the infura api in order to make request to the blockchain
+      safeKey = JSON.stringify(this.props.navigation.getParam('safeKey', 'null')).replace(/"/g, "")
+      publicKey = JSON.stringify(this.props.navigation.getParam('publicKey', 'null')).replace(/"/g, "")
+      privateKey = JSON.stringify(this.props.navigation.getParam('privateKey', 'null')).replace(/"/g, "")
+      console.log("Safekey: ", safeKey, "PublicKey: ", publicKey, "privateKey: ", privateKey )
+      this.setState({
+        safeKey: safeKey,
+        publicKey: publicKey,
+        privateKey: privateKey
+      })
       const web3 =
         new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/b5995aabe55246c8bb6d68cf7f5c5231")
       );
@@ -37,15 +47,32 @@ class Test extends Component {
       })
 
       //Creates new contract
-      const Contract = new web3.eth.Contract(abi["abi"], "0x218d8bF92ED28C4ad82BF109d6f4fb453f6D6121")
+      const Contract = new web3.eth.Contract(abi["abi"], safeKey)
       console.log(Contract)
 
       //Creates new contract
-      const Modules_Contract = new web3.eth.Contract(ModulesManager["abi"], "0x218d8bF92ED28C4ad82BF109d6f4fb453f6D6121")
+      const Modules_Contract = new web3.eth.Contract(ModulesManager["abi"], safeKey)
       //Calls the getModules call on the contract at the address given above
-      Modules_Contract.methods.getModules().call((error, result) => {
+      await Modules_Contract.methods.getModules().call(async (error, result) => {
         if (error) throw error;
         console.log("Modules Response", result)
+
+
+        // Code to validate the identity with the answer to module response as address
+        const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+        web3.eth.accounts.wallet.add(account);
+        const from = web3.eth.accounts.wallet[0].address;
+        const nonce =  await web3.eth.getTransactionCount(from, "pending");
+        const QaxhModuleContract = new web3.eth.Contract(QaxhModule["abi"], result[0])
+        gas = Math.round(100000 * 1.5);
+        // Sends the acceptidentity transaction with all the parameters and waits for the answer.
+        QaxhModuleContract.methods.acceptIdentity().send({gas:gas,from:from, nonce:nonce},(error, result)=> {
+          if (error) throw error;
+          console.log("Accept Identity", result)
+          this.setState({
+            acceptIdentity: result
+          })
+        })
         this.setState({
           isLoading: false, 
           response: result[0]
@@ -82,6 +109,10 @@ class Test extends Component {
         return (
             <View>
             <Text>Modules Response {this.state.response}</Text>
+            <Text>Accept identity: {this.state.acceptIdentity}</Text>
+            <Text>Private key: {this.state.privateKey}</Text>
+            <Text>Public key: {this.state.publicKey}</Text>
+            <Text>Safe key: {this.state.safeKey}</Text>
             </View>
             
             

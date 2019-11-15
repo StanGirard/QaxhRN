@@ -9,27 +9,29 @@ import '../../shim.js'
 //The user is redirected here after authentification on France Connect
 class Profile extends Component {
     static navigationOptions = {
-      title: 'Connexion',
+      title: 'Accept Identity',
     };
     constructor(props){
         super(props);
         this.state = { 
             isLoading: true,
             passwordVerification: "",
-            password: "",
-            privateKey: JSON.stringify(this.props.navigation.getParam('privateKey', 'null')),
-            publicKey: JSON.stringify(this.props.navigation.getParam('publicKey', 'null'))
-        }
+            password: ""
       }
+    }
       componentWillMount() {
         const web3 = new Web3(
           new Web3.providers.HttpProvider('https://mainnet.infura.io/')
         );
       }
     
-    componentDidMount() {
-        console.log(JSON.stringify(this.props.navigation.getParam('publicKey', 'null')))
-        console.log(JSON.stringify(this.props.navigation.getParam('url', 'Error')).replace(/"/g, ""))
+    async componentDidMount() {
+      await this.setState({
+        privateKey: JSON.stringify(this.props.navigation.getParam('privateKey')).replace(/"/g, ""),
+        publicKey: JSON.stringify(this.props.navigation.getParam('publicKey')).replace(/"/g, "")
+      })
+      console.log("HAHAHAHAHAHAHAHA")
+      console.log("PrivateKey:", this.state.privateKey, "PublicKey:", this.state.publicKey)
         axios.get(JSON.stringify(this.props.navigation.getParam('url', 'Error')).replace(/"/g, ""), {timeout: 500000})
           .then(
             (result) => {
@@ -56,10 +58,11 @@ class Profile extends Component {
                 birthcountry: params[5],
                 birthplace: params[6],
                 email: params[7],
-                identityprovider: params[8],
-                saltqi: params[9],
-                saltqe: params[10],
-                safekey: params[11],
+                identityLevel: params[8],
+                identityprovider: params[9],
+                saltqi: params[10],
+                saltqe: params[11],
+                safekey: params[12].replace(/(\r\n|\n|\r)/gm, "").replace(/ /g,'')
               });
             },
             // Remarque : il est important de traiter les erreurs ici
@@ -91,6 +94,12 @@ class Profile extends Component {
                     password: "success",
                     passwordVerification: "success"
                 })
+                this.props.navigation.navigate('Test', {
+                  safeKey: this.state.safekey,
+                  privateKey: this.state.privateKey,
+                  publicKey: this.state.publicKey
+                })
+
             } else {
                 this.setState({
                     password: "error",
@@ -137,7 +146,7 @@ class Profile extends Component {
                 value={this.state.passwordVerification}
                 />
             <Button
-            title="Valider ces informations"
+            title="Accept Identity"
             onPress={() => this.validateData()}
             />
             </View>
