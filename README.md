@@ -23,5 +23,6 @@ cd ios/ && pod install && cd ..
 Make sure that you either have an emulator running on your computer or that your smartphone is connected to your computer with debug allowed in developer settings.
 
 ```Bash
-react-native run-ios
+react-native run-ios #for ios
+react-native run-android #for android
 
